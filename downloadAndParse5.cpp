@@ -15,6 +15,7 @@ using std::endl;
 using std::iterator;
 #include <curl/curl.h>
 #include <curl/easy.h>
+#include <fstream>
 
 
 
@@ -140,10 +141,16 @@ size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
 int main()
 {
 
+	std::ifstream fin;
+	std::ifstream fout;
+	std::string key = "";
+	fin.open("key");
+	if (!fin.good()) throw "I/O error";
+	getline(fin, key);
 	std::string playerId = "76561197961499967";
 
 	std::string finalUrl;
-	std::string key = "";
+	
 	int currentMatch = 0;
 
 	std::string base_url = "https://api.steampowered.com/IDOTA2Match_570/GetMatchHistory/V001/?key=";
