@@ -121,20 +121,7 @@ size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
 
 
 
-// current problem: not fetching second file, just keeps on loading the first one over and over
-	// possible solutions:
-		// 1. different filenames 
-		// 2. make sure file downloads, the link is right but it doesnt want to work idk // its ok
-		// 3. throw out the old file before the new one comes int
-		// 4. maybe my arguments are in the wrong order for the request? // probably isnt this\
-		
-		// problem fixed, there was a space in the url that curl did not cut out
 
-
-// now there is the problem of a wasted motion, when i request the match it grabs the last one, ill have to decriment the number for the last seen match
-	// ok fixed it i think
-
-// now to store the data
 
 
 
@@ -151,7 +138,7 @@ int main()
 	std::string playerId = "76561197961499967";
 
 	std::ifstream fout;
-
+	// open file for output
 	fout.open("76561197961499967.csv")
 
 	std::string finalUrl;
@@ -176,6 +163,11 @@ int main()
 	std::string combineStart = "";
 
 	bool continueToFetch = true;
+
+	// write output headers
+
+	fout << "matchID,playerID,match_seq_num,start_time,account_id,player_slot,hero_id" << endl;
+	
 
 	
 
@@ -283,40 +275,7 @@ int main()
 
 
 		
-		// free memory, put this inside the destructor later
 		
-		/*
-		cout << "trying to free memory now" << endl;
-		for(int i = 0; i < rec.matchList.size(); i++)
-		{
-			for(int j = 0; j < rec.matchList[i].players.size(); j++)
-			{
-				//cout << "trying to delete a player" << endl;
-				//cout << "player id: " << rec.matchList[i].players[j].accountID << endl;
-				//delete &(rec.matchList[i]->players[j]);
-				//cout << "player deleted" << endl;
-			}
-			//cout << "trying to delete a match" << endl;
-			//delete &rec.matchList[i];
-		}
-		*/
-
-		/*
-		dotaMatch dm;
-		
-		dm.load("test.json");
-		std::cout << "hope it worked!" << std::endl;
-		//std::cout << "value: " << "[expected to be false]" << std::endl;
-		//std::cout << "value: " << dm.dm_winner << std::endl;
-		std::cout << "player ids: " << std::endl;
-		int test = 0;
-
-		for(std::set<std::string>::iterator i = dm.dm_playerID.begin(); i != dm.dm_playerID.end(); i++) // can use boost foreach later
-		{
-			std::cout << *i << std::endl;
-			std::cout << test << std::endl;
-			test++;
-		}*/
 	}
 	catch (std::exception &e)
 	{
