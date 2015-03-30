@@ -10,6 +10,7 @@
 #include <iostream>
 #include <iterator>
 #include <iostream>
+using std::ostream;
 using std::cout;
 using std::endl;
 using std::iterator;
@@ -64,13 +65,13 @@ struct match
 struct playersMatches
 {
 	std::vector<match> matchList;
-	void load(const std::string &filename);
+	void load(const std::string &filename, ostream &out);
 	std::string matchesLeft;
 	std::string currentOldestMatch;
 };
 
 
-void playersMatches::load(const std::string &filename)
+void playersMatches::load(const std::string &filename, ostream &out)
 {
 	using boost::property_tree::ptree;
 	ptree pt;
@@ -148,6 +149,10 @@ int main()
 	if (!fin.good()) throw "I/O error";
 	getline(fin, key);
 	std::string playerId = "76561197961499967";
+
+	std::ifstream fout;
+
+	fout.open("76561197961499967.csv")
 
 	std::string finalUrl;
 	
