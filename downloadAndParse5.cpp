@@ -9,11 +9,13 @@
 #include <exception>
 #include <iostream>
 #include <iterator>
-#include <iostream>
 using std::ostream;
+using std::ios;
 using std::cout;
 using std::endl;
 using std::iterator;
+
+#include <iomanip>
 #include <curl/curl.h>
 #include <curl/easy.h>
 #include <fstream>
@@ -35,8 +37,7 @@ struct dotaMatch
 	/**
  	 * set of strings to hold player ids
  	 */
-	std::set<std::string> dm_playerID; // change to ints later maybe
-	// make a map, <string , vector of strings>? idk.
+	std::set<std::string> dm_playerID; 
 
 	std::string dm_duration;
 
@@ -44,14 +45,12 @@ struct dotaMatch
 
 
 
-	//std::map
-	//void load(const std::string &filename);
 };
 
 struct player
 {
-	std::string accountID;
-	std::string playerSlot;
+	std::string account_id;
+	std::string player_slot;
 	std::string heroID;
 };
 
@@ -60,6 +59,7 @@ struct match
 	std::vector<player> players;
 	std::string matchID;
 	std::string startTime;
+	std::string match_seq_num;
 };
 
 struct playersMatches
@@ -77,9 +77,7 @@ void playersMatches::load(const std::string &filename, ostream &out)
 	ptree pt;
 
 	read_json(filename, pt);
-	
-	int i = 0;
-	
+		
 	
 	BOOST_FOREACH (boost::property_tree::ptree::value_type& result, pt)
 	{
@@ -87,22 +85,24 @@ void playersMatches::load(const std::string &filename, ostream &out)
 		cout << "there are " << matchesLeft << " matches left" << endl;
 		BOOST_FOREACH (boost::property_tree::ptree::value_type& matches, result.second.get_child("matches"))
 		{
-			//cout << "right before making a new match" << endl;
 			match tempMatch;
-			BOOST_FOREACH (boost::property_tree::ptree::value_type& players, matches.second.get_child("players"))
-			{
-				//cout << "right before making a new player" << endl;
-				player tempPlayer;
-				tempPlayer.accountID = players.second.get<std::string>("account_id");
-				tempPlayer.playerSlot = players.second.get<std::string>("player_slot");
-				tempPlayer.heroID = players.second.get<std::string>("hero_id");
-				tempMatch.players.push_back(tempPlayer);
-				
-			}
 			tempMatch.startTime = matches.second.get<std::string>("start_time");
 			tempMatch.matchID = matches.second.get<std::string>("match_id");
+			tempMatch.match_seq_num = matches.second.get<std::string>("match_seq_num");
+
+			BOOST_FOREACH (boost::property_tree::ptree::value_type& players, matches.second.get_child("players"))
+			{
+				player tempPlayer;
+
+				tempPlayer.account_id = players.second.get<std::string>("account_id");
+				tempPlayer.player_slot = players.second.get<std::string>("player_slot");
+				tempPlayer.heroID = players.second.get<std::string>("hero_id");
+				tempMatch.players.push_back(tempPlayer);
+				out << tempMatch.matchID << "," << tempMatch.startTime << "," << tempMatch.match_seq_num << "," << tempPlayer.account_id << "," << tempPlayer.player_slot << "," << tempPlayer.heroID << std::endl;
+				
+			}
+			
 			currentOldestMatch = tempMatch.matchID;
-			cout << "currentOldestMatch: " << currentOldestMatch << endl;
 			matchList.push_back(tempMatch);
 		
 		}
@@ -130,16 +130,23 @@ int main()
 {
 
 	std::ifstream fin;
-	std::ifstream fout;
 	std::string key = "";
 	fin.open("key");
-	if (!fin.good()) throw "I/O error";
+	try{
+		if (!fin.good()) throw "I/O error";
+	}
+	catch (std::exception &e)
+	{
+		std::cout << "Error: " << e.what() << std::endl;
+	}
 	getline(fin, key);
 	std::string playerId = "76561197961499967";
 
-	std::ifstream fout;
 	// open file for output
-	fout.open("76561197961499967.csv")
+	cout << "trying to open file" << endl;
+	std::ofstream fout("76561197961499967.csv");
+
+
 
 	std::string finalUrl;
 	
@@ -165,10 +172,9 @@ int main()
 	bool continueToFetch = true;
 
 	// write output headers
-
-	fout << "matchID,playerID,match_seq_num,start_time,account_id,player_slot,hero_id" << endl;
+	cout << "attempting to write headers" << endl;
+	//fout << "match_id,match_seq_num,start_time,account_id,player_slot,hero_id" << endl;
 	
-
 	
 
 	
@@ -212,7 +218,7 @@ int main()
 				
 				// parse file
 				
-				rec.load("test.json");
+				rec.load("test.json", fout);
 
 				char tempString[50];
 				
@@ -243,7 +249,6 @@ int main()
 					long int value = ((atoi(startFromPosition.c_str())));
 					value--;
 					cout << "just decrimented the value" << endl;
-					//sprintf(startFromPosition.c_str(),"%d",value);
 					
 
 					sprintf(tempString,"%d",value);
@@ -281,7 +286,8 @@ int main()
 	{
 		std::cout << "Error: " << e.what() << std::endl;
 	}
-	
+	fin.close();
+	fout.close();
 	
 	
 	
