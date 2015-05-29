@@ -2,3 +2,9 @@
 key
 
 output.txt
+
+downloadAndStore copy.txt
+
+fileWriteTest.cpp
+
+replayFetch.cpp
