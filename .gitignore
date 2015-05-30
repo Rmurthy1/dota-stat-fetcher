@@ -8,3 +8,5 @@ downloadAndStore copy.txt
 fileWriteTest.cpp
 
 replayFetch.cpp
+
+downloadAndStore.rtf
