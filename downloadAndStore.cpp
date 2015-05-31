@@ -119,7 +119,8 @@ class MyGames
 {
 	std::vector<Game> m_allGames;
 	bool compareForPlayerFrequency(const std::pair<Player, int>&, const std::pair<Player, int>&) const;
-	comparisonForFrequency *comp;
+	string m_currentOldestGame;
+	string m_matchesLeft;
 public:
 	void addGames(Game);
 	void load(const std::string &filename);
@@ -141,60 +142,82 @@ bool MyGames::compareForPlayerFrequency(const std::pair<Player, int> &a, const s
 
 void MyGames::mostSeen()
 {
-	std::map<Player, int> seenPlayers;
+	std::map<Player, int> seenPlayers; // count of how many times I have seen you
+	std::map<Player, std::vector<Game> > multiGames; // lets keep a list of matches where you have been seen with me
+
+	// maybe replace this with a multimap
+
+	// multimap <Player, vec> myMap;
+	// throw em in normally
+	// can use count to get the number of times that i have seen them
+	// 
 	
+	// for all the games
 	for (int i = 0; i < m_allGames.size(); i++)
 	{
+		// for all the players in those games
 		for (int j = 0; j < m_allGames[i].m_players_in_game.size(); j++)
 		{
-			
-			//std::cout << "writing alot of lines!!!" << std::endl; // test
-			
+						
 			// seenPlayers[m_allGames[i].m_players_in_game[j]]++;
 
 			// swap this count with the .find(key) and see if its not equal to .end() later!!!
 			// otherwise im just doing double the work kinda
+
+			// get the Player object
 			Player key = m_allGames[i].m_players_in_game[j];
+			// check if it has already been seen before
 			if (seenPlayers.count(key) == 1) 
 			{
+				// update the attached int
                 seenPlayers[key] = seenPlayers[key] + 1;
+                //multiGames[key] = multiGames[key].push_back(m_allGames[i]);
+
+                // add it to the list of games that is mapped by that repetedly seen player
+                multiGames[key].push_back(m_allGames[i]);
             }
-            else 
+            else
             {
+            	// throw it on the map and give it an int of 1
                 seenPlayers[key] = 1;
             }
-
 		}
 	}
 	// map now populated with counts
-	//typedef std::map<std::string, std::map<std::string, std::string>>::iterator it_type;
-	/*
-	for (std::map<Player, int>::iterator i = seenPlayers.begin(); i != seenPlayers.end(); i++)
-	{
-		//std::std::vector<pair<> v;
-		//lets just print the map
-		std::cout << "element: " << i->first << " count: " << i->second << std::endl;
-
-	}
-	*/
+	
 	// whole lotta copying going on here, gotta switch this up later
 		// in this im making a pair and then throwing the pair in a priorty queue with a custom compare
+
+	// a priority queue that takes a pair from our seenplayers map type, has an underlying vector structure,
+	// and uses a custom compare functor
 	std::priority_queue<std::pair<Player, int>, std::vector<std::pair<Player, int> >, comparisonForFrequency> pqueue;
 	for (std::map<Player,int>::iterator it=seenPlayers.begin(); it!=seenPlayers.end(); ++it)
 	{
-    	//std::cout << it->first.m_account_id << " => " << it->second << '\n';
-
-    	//std::pair<Player, int> tempPair = *it;
-    	pqueue.push(*it);//maybe switch to &
-
+    	pqueue.push(*it);
     }
 
+    // cutting out top two matches, i can do it in the loop later
+    // these are the hidden player and me
+    pqueue.pop();
+    pqueue.pop();
+
+    // for the top 20 most seen guys
     for (int i = 0; i < 20; i++)
     {
-    	std::cout << pqueue.top().first.m_account_id << "=>" << pqueue.top().second << std::endl;
+    	// print their id and how many times i have seen them
+    	std::cout << pqueue.top().first.m_account_id << "=>" << (pqueue.top().second - 1) << std::endl;
+    	// get the list of all the games that i have seen them in
+    	std::vector<Game> temp = multiGames[pqueue.top().first];
+
+    	cout << "You have seen " << pqueue.top().first.m_account_id << " in these " << (pqueue.top().second - 1) << " games: " << endl;
+    	// run through the array of games that we have shared
+    	for (std::vector<Game>::iterator i = temp.begin(); i != temp.end(); ++i)
+    	{
+    		std::cout << i->m_match_id << std::endl;
+    	}
+    	std::cout << std::endl;
     	pqueue.pop();
     }
-
 
 }
 
@@ -300,9 +323,6 @@ struct playersMatches
 
 
 
-
-
-
 // refactor this to be part of the new class
 void playersMatches::load(const std::string &filename, ostream &out, MyGames &gameList)
 {
@@ -356,21 +376,11 @@ void playersMatches::load(const std::string &filename, ostream &out, MyGames &ga
 	
 }
 
-
-//}
-
 size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
     size_t written;
     written = fwrite(ptr, size, nmemb, stream);
     return written;
 }
-
-
-
-
-
-
-
 
 int main()
 {
@@ -498,20 +508,7 @@ int main()
 					cout << "done making string" << endl;
 
 				}
-				/*
-				else
-				{
-					amountOfMatchesToFetch = "100";
-					startFromPosition = rec.currentOldestMatch;
-					long int value = ((atoi(startFromPosition.c_str())));
-					value--;
-					
-					sprintf(tempString,"%d",value);
-					useString = actualString + startFrom + tempString;
-					
-					std::cout << "fart" << std::endl;
-				}
-				*/
+	
 			}
 		}
 		

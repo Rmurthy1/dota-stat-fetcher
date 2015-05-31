@@ -10,3 +10,9 @@ fileWriteTest.cpp
 replayFetch.cpp
 
 downloadAndStore.rtf
+
+*.rtf
+
+sqliteTest.c
+
+sqliteTest.cpp
