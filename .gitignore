@@ -12,3 +12,5 @@ replayFetch.cpp
 downloadAndStore.rtf
 
 *.rtf
+
+sqliteTest.cpp
